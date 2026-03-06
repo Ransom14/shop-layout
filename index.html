@@ -19,7 +19,7 @@
             overflow: hidden;
         }
         #sidebar {
-            width: 280px;
+            width: 300px;
             background-color: #2d2d2d;
             padding: 20px;
             box-shadow: 2px 0 5px rgba(0,0,0,0.5);
@@ -33,7 +33,7 @@
         #sidebar h3 { margin: 10px 0 0 0; font-size: 0.85rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px;}
         
         .input-group { display: flex; gap: 5px; margin-bottom: 5px; }
-        .input-group input { width: 100%; padding: 5px; background: #1e1e1e; border: 1px solid #555; color: white; font-size: 0.9rem;}
+        .input-group input, .input-group select { width: 100%; padding: 6px; background: #1e1e1e; border: 1px solid #555; color: white; font-size: 0.9rem; box-sizing: border-box; }
         
         button {
             width: 100%;
@@ -71,11 +71,16 @@
             text-overflow: ellipsis;
         }
         
+        /* Custom Item Builder */
+        details summary { cursor: pointer; font-weight: bold; color: #9b59b6; outline: none; transition: color 0.2s; }
+        details summary:hover { color: #8e44ad; }
+        .custom-panel { background-color: #353535; padding: 12px; border-radius: 4px; margin-top: 8px; border: 1px solid #555; }
+
         #edit-panel {
             background-color: #3d3d3d;
             padding: 10px;
             border-radius: 4px;
-            display: none; /* Hidden by default */
+            display: none;
             border: 1px solid #2ecc71;
         }
 
@@ -84,35 +89,26 @@
             position: relative;
             background-color: #1a1a1a;
             overflow: auto;
-            padding: 20px;
+            padding: 30px;
         }
 
-        #shop-floor {
+        .floor-container { margin-bottom: 50px; }
+        .floor-container h2 { margin-top: 0; margin-bottom: 10px; font-size: 1.4rem; }
+
+        .grid-floor {
             position: relative;
             background-color: #252526;
             background-image: 
                 linear-gradient(#333 1px, transparent 1px),
                 linear-gradient(90deg, #333 1px, transparent 1px);
             background-size: var(--scale) var(--scale);
-            border: 4px solid #4a90e2;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
             transform-origin: top left;
+            overflow: hidden;
         }
 
-        #loft-overlay {
-            position: absolute;
-            background-color: rgba(243, 156, 18, 0.15);
-            border: 2px dashed #f39c12;
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: rgba(243, 156, 18, 0.6);
-            font-weight: bold;
-            font-size: 1.5rem;
-            letter-spacing: 2px;
-            z-index: 50;
-        }
+        #shop-floor { border: 4px solid #4a90e2; }
+        #loft-floor { border: 4px solid #f39c12; }
 
         .placed-item {
             position: absolute;
@@ -130,6 +126,7 @@
             box-sizing: border-box;
             z-index: 40;
             line-height: 1.1;
+            overflow: hidden;
         }
         .placed-item.selected { border-color: #2ecc71; border-width: 2px; z-index: 100; box-shadow: 0 0 10px #2ecc71; }
         
@@ -141,22 +138,37 @@
     <div id="sidebar">
         <h2>Frontier Foundry Setup</h2>
         
-        <h3>Shop Boundary (ft)</h3>
+        <h3>Floor Dimensions (ft)</h3>
         <div class="input-group">
-            <input type="number" id="shop-w" value="40" title="Width (X)">
-            <input type="number" id="shop-h" value="30" title="Length (Y)">
+            <input type="number" id="shop-w" value="40" title="Main Floor Width">
+            <input type="number" id="shop-h" value="30" title="Main Floor Length">
         </div>
         
-        <h3>Loft Overlay (ft)</h3>
+        <h3>Loft Dimensions (ft)</h3>
         <div class="input-group">
-            <input type="number" id="loft-w" value="15" title="Width">
-            <input type="number" id="loft-h" value="10" title="Length">
-        </div>
-        <div class="input-group">
-            <input type="number" id="loft-x" value="0" title="X Position">
-            <input type="number" id="loft-y" value="0" title="Y Position">
+            <input type="number" id="loft-w" value="15" title="Loft Width">
+            <input type="number" id="loft-h" value="10" title="Loft Length">
         </div>
         <button onclick="updateShop()">Apply Dimensions</button>
+
+        <details>
+            <summary>+ Create Custom Space Claim</summary>
+            <div class="custom-panel">
+                <input type="text" id="custom-name" placeholder="Item Name (e.g. Compressor)" style="width: 100%; padding: 6px; box-sizing: border-box; margin-bottom: 6px; background: #1e1e1e; border: 1px solid #555; color: white;">
+                <div class="input-group">
+                    <input type="number" id="custom-w" placeholder="W (ft)" step="0.5">
+                    <input type="number" id="custom-h" placeholder="L (ft)" step="0.5">
+                </div>
+                <div class="input-group" style="align-items: center;">
+                    <input type="color" id="custom-color" value="#9b59b6" style="padding: 0; width: 40px; height: 32px; border: none; cursor: pointer;">
+                    <select id="custom-layer">
+                        <option value="shop-floor">1st Floor</option>
+                        <option value="loft-floor">Loft (2nd Floor)</option>
+                    </select>
+                </div>
+                <button onclick="addCustomItem()" style="background-color: #9b59b6;">Add Custom Item</button>
+            </div>
+        </details>
 
         <div id="edit-panel">
             <h3 style="margin-top:0; color: #2ecc71;">Edit Selected Item</h3>
@@ -192,20 +204,29 @@
     </div>
 
     <div id="canvas-area">
-        <div id="shop-floor">
-            <div id="loft-overlay">LOFT</div>
+        <div id="export-container" style="background-color: #1a1a1a; padding: 10px;">
+            <div class="floor-container">
+                <h2 style="color: #4a90e2;">Main Shop Floor (1st Floor)</h2>
+                <div id="shop-floor" class="grid-floor"></div>
+            </div>
+            
+            <div class="floor-container">
+                <h2 style="color: #f39c12;">Loft Area (2nd Floor)</h2>
+                <div id="loft-floor" class="grid-floor"></div>
+            </div>
         </div>
     </div>
 
     <script>
         const SCALE = 20; // 1 foot = 20px
         const shopFloor = document.getElementById('shop-floor');
-        const loftOverlay = document.getElementById('loft-overlay');
+        const loftFloor = document.getElementById('loft-floor');
         const editPanel = document.getElementById('edit-panel');
         
         let selectedElement = null;
         let isDragging = false;
         let startX, startY, initialLeft, initialTop;
+        let activeFloor = null;
 
         function updateShop() {
             const sw = document.getElementById('shop-w').value;
@@ -215,64 +236,78 @@
 
             const lw = document.getElementById('loft-w').value;
             const lh = document.getElementById('loft-h').value;
-            const lx = document.getElementById('loft-x').value;
-            const ly = document.getElementById('loft-y').value;
-            
-            loftOverlay.style.width = (lw * SCALE) + 'px';
-            loftOverlay.style.height = (lh * SCALE) + 'px';
-            loftOverlay.style.left = (lx * SCALE) + 'px';
-            loftOverlay.style.top = (ly * SCALE) + 'px';
+            loftFloor.style.width = (lw * SCALE) + 'px';
+            loftFloor.style.height = (lh * SCALE) + 'px';
         }
 
         updateShop();
 
+        // Helper to spawn items
+        function spawnItem(name, w, h, bg, floorId, isStairs = false) {
+            const newBlock = document.createElement('div');
+            newBlock.className = 'placed-item';
+            if (isStairs) newBlock.classList.add('style-stairs');
+            
+            newBlock.innerHTML = name;
+            newBlock.style.width = (w * SCALE) + 'px';
+            newBlock.style.height = (h * SCALE) + 'px';
+            if (!isStairs) newBlock.style.backgroundColor = bg;
+            
+            newBlock.style.left = (2 * SCALE) + 'px'; 
+            newBlock.style.top = (2 * SCALE) + 'px';
+
+            document.getElementById(floorId).appendChild(newBlock);
+            selectElement(newBlock);
+        }
+
+        // Sidebar Standard Items
         document.querySelectorAll('.draggable-item').forEach(item => {
             item.style.backgroundColor = item.getAttribute('data-bg'); 
             
-            item.addEventListener('mousedown', (e) => {
-                const widthFt = parseFloat(item.getAttribute('data-w'));
-                const heightFt = parseFloat(item.getAttribute('data-h'));
-                const bgColor = item.getAttribute('data-bg');
+            item.addEventListener('click', (e) => {
+                const w = parseFloat(item.getAttribute('data-w'));
+                const h = parseFloat(item.getAttribute('data-h'));
+                const bg = item.getAttribute('data-bg');
                 const isStairs = item.classList.contains('style-stairs');
-                
-                const newBlock = document.createElement('div');
-                newBlock.className = 'placed-item';
-                if (isStairs) newBlock.classList.add('style-stairs');
-                
-                newBlock.innerHTML = item.innerText;
-                newBlock.style.width = (widthFt * SCALE) + 'px';
-                newBlock.style.height = (heightFt * SCALE) + 'px';
-                if (!isStairs) newBlock.style.backgroundColor = bgColor;
-                
-                newBlock.style.left = (10 * SCALE) + 'px'; 
-                newBlock.style.top = (10 * SCALE) + 'px';
-
-                shopFloor.appendChild(newBlock);
-                selectElement(newBlock);
-                initDrag(newBlock, e);
+                // Standard items default to the main floor
+                spawnItem(item.innerText, w, h, bg, 'shop-floor', isStairs);
             });
         });
 
-        shopFloor.addEventListener('mousedown', (e) => {
+        // Custom Item Logic
+        function addCustomItem() {
+            const name = document.getElementById('custom-name').value || 'Custom';
+            const w = parseFloat(document.getElementById('custom-w').value) || 2;
+            const h = parseFloat(document.getElementById('custom-h').value) || 2;
+            const color = document.getElementById('custom-color').value;
+            const layer = document.getElementById('custom-layer').value;
+
+            spawnItem(name, w, h, color, layer);
+            
+            // Reset fields
+            document.getElementById('custom-name').value = '';
+            document.getElementById('custom-w').value = '';
+            document.getElementById('custom-h').value = '';
+        }
+
+        // Global Dragging Logic
+        document.addEventListener('mousedown', (e) => {
             if (e.target.classList.contains('placed-item')) {
                 selectElement(e.target);
-                initDrag(e.target, e);
-            } else if (e.target === shopFloor || e.target === loftOverlay) {
+                isDragging = true;
+                activeFloor = e.target.parentElement;
+                startX = e.clientX;
+                startY = e.clientY;
+                initialLeft = parseInt(e.target.style.left) || 0;
+                initialTop = parseInt(e.target.style.top) || 0;
+                e.target.style.cursor = 'grabbing';
+            } else if (e.target.classList.contains('grid-floor') || e.target.closest('#canvas-area') && !e.target.closest('#sidebar')) {
                 deselectAll();
             }
         });
 
-        function initDrag(element, e) {
-            isDragging = true;
-            startX = e.clientX;
-            startY = e.clientY;
-            initialLeft = parseInt(element.style.left) || 0;
-            initialTop = parseInt(element.style.top) || 0;
-            element.style.cursor = 'grabbing';
-        }
-
         document.addEventListener('mousemove', (e) => {
-            if (!isDragging || !selectedElement) return;
+            if (!isDragging || !selectedElement || !activeFloor) return;
             const dx = e.clientX - startX;
             const dy = e.clientY - startY;
             
@@ -287,15 +322,15 @@
         document.addEventListener('mouseup', () => {
             if (isDragging && selectedElement) selectedElement.style.cursor = 'grab';
             isDragging = false;
+            activeFloor = null;
         });
 
-        // --- NEW: Edit Panel Logic ---
+        // Editing Controls
         function selectElement(element) {
             deselectAll();
             selectedElement = element;
             selectedElement.classList.add('selected');
             
-            // Show edit panel and populate current sizes in feet
             editPanel.style.display = 'block';
             document.getElementById('edit-w').value = parseFloat(element.style.width) / SCALE;
             document.getElementById('edit-h').value = parseFloat(element.style.height) / SCALE;
@@ -320,12 +355,8 @@
             if (selectedElement) {
                 const currentWidth = parseFloat(selectedElement.style.width) / SCALE;
                 const currentHeight = parseFloat(selectedElement.style.height) / SCALE;
-                
-                // Swap dimensions visually
                 selectedElement.style.width = (currentHeight * SCALE) + 'px';
                 selectedElement.style.height = (currentWidth * SCALE) + 'px';
-                
-                // Update inputs
                 document.getElementById('edit-w').value = currentHeight;
                 document.getElementById('edit-h').value = currentWidth;
             }
@@ -338,22 +369,20 @@
             }
         });
 
-        // --- NEW: Export Logic ---
+        // Export Logic
         function exportLayout() {
-            // Temporarily hide selection box for a clean screenshot
             const tempSelected = selectedElement;
             if (tempSelected) tempSelected.classList.remove('selected');
 
-            html2canvas(document.getElementById('shop-floor'), {
-                backgroundColor: '#1a1a1a' 
+            // Capture the container holding both floors
+            html2canvas(document.getElementById('export-container'), {
+                backgroundColor: '#1a1a1a',
+                scale: 2 // Higher resolution export
             }).then(canvas => {
-                // Create an invisible link to trigger the download
                 const link = document.createElement('a');
-                link.download = 'frontier-foundry-layout.png';
+                link.download = 'frontier-foundry-multilevel-layout.png';
                 link.href = canvas.toDataURL('image/png');
                 link.click();
-
-                // Restore selection box
                 if (tempSelected) tempSelected.classList.add('selected');
             });
         }
