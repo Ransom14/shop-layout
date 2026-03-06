@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontier Foundry Shop Layout</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #1e1e1e;
+            color: #fff;
+            overflow: hidden;
+        }
+        #sidebar {
+            width: 250px;
+            background-color: #2d2d2d;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        #sidebar h2 { margin-top: 0; font-size: 1.2rem; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .draggable-item {
+            background-color: #4a90e2;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            cursor: grab;
+            user-select: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            border: 2px solid transparent;
+        }
+        #canvas-area {
+            flex-grow: 1;
+            position: relative;
+            background-color: #252526;
+            background-image: 
+                linear-gradient(#333 1px, transparent 1px),
+                linear-gradient(90deg, #333 1px, transparent 1px);
+            background-size: 50px 50px; /* Represents 1 grid square (e.g., 1 foot) */
+            overflow: auto;
+        }
+        .placed-item {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: grab;
+            user-select: none;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.2);
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .placed-item.selected {
+            border-color: #ffc107;
+            z-index: 100;
+        }
+        .controls { margin-top: auto; }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            border: 1px solid #555;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        button:hover { background-color: #444; }
+        #instructions { font-size: 0.8rem; color: #aaa; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <h2>Frontier Foundry<br>Equipment Menu</h2>
+        
+        <div class="draggable-item" data-w="100" data-h="100" data-bg="#d35400">Snapmaker Artisan</div>
+        <div class="draggable-item" data-w="60" data-h="60" data-bg="#2980b9">FLSUN S1 Pro</div>
+        <div class="draggable-item" data-w="120" data-h="80" data-bg="#27ae60">Makera Z1 CNC</div>
+        <div class="draggable-item" data-w="150" data-h="50" data-bg="#8e44ad">Workbench (Long)</div>
+        <div class="draggable-item" data-w="100" data-h="50" data-bg="#7f8c8d">Filament Storage</div>
+        <div class="draggable-item" data-w="50" data-h="50" data-bg="#c0392b">General Clearance</div>
+
+        <div class="controls">
+            <button id="rotate-btn">Rotate Selected 90°</button>
+            <button id="delete-btn">Delete Selected</button>
+            <div id="instructions">
+                Drag items from the menu to the grid.<br><br>
+                Click an item on the grid to select it.<br><br>
+                Use buttons to rotate or delete the selected item.
+            </div>
+        </div>
+    </div>
+
+    <div id="canvas-area"></div>
+
+    <script>
+        const canvas = document.getElementById('canvas-area');
+        const sidebarItems = document.querySelectorAll('.draggable-item');
+        let selectedElement = null;
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
+
+        // 1. Spawning new items from the sidebar
+        sidebarItems.forEach(item => {
+            item.addEventListener('mousedown', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const width = parseInt(item.getAttribute('data-w'));
+                const height = parseInt(item.getAttribute('data-h'));
+                const bgColor = item.getAttribute('data-bg');
+                const name = item.innerText;
+
+                const newBlock = document.createElement('div');
+                newBlock.className = 'placed-item';
+                newBlock.innerText = name;
+                newBlock.style.width = width + 'px';
+                newBlock.style.height = height + 'px';
+                newBlock.style.backgroundColor = bgColor;
+                
+                // Spawn near the top left of the canvas
+                newBlock.style.left = '50px';
+                newBlock.style.top = '50px';
+
+                canvas.appendChild(newBlock);
+                selectElement(newBlock);
+                initDrag(newBlock, e);
+            });
+        });
+
+        // 2. Dragging logic for placed items
+        canvas.addEventListener('mousedown', (e) => {
+            if (e.target.classList.contains('placed-item')) {
+                selectElement(e.target);
+                initDrag(e.target, e);
+            } else {
+                deselectAll();
+            }
+        });
+
+        function initDrag(element, e) {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            initialLeft = parseInt(element.style.left) || 0;
+            initialTop = parseInt(element.style.top) || 0;
+            element.style.cursor = 'grabbing';
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging || !selectedElement) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            
+            // Snap to 10px increments for slight grid feeling
+            const newLeft = Math.round((initialLeft + dx) / 10) * 10;
+            const newTop = Math.round((initialTop + dy) / 10) * 10;
+
+            selectedElement.style.left = `${newLeft}px`;
+            selectedElement.style.top = `${newTop}px`;
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging && selectedElement) {
+                selectedElement.style.cursor = 'grab';
+            }
+            isDragging = false;
+        });
+
+        // 3. Selection and Controls
+        function selectElement(element) {
+            deselectAll();
+            selectedElement = element;
+            selectedElement.classList.add('selected');
+        }
+
+        function deselectAll() {
+            document.querySelectorAll('.placed-item').forEach(el => el.classList.remove('selected'));
+            selectedElement = null;
+        }
+
+        document.getElementById('rotate-btn').addEventListener('click', () => {
+            if (selectedElement) {
+                const currentWidth = selectedElement.style.width;
+                const currentHeight = selectedElement.style.height;
+                selectedElement.style.width = currentHeight;
+                selectedElement.style.height = currentWidth;
+            }
+        });
+
+        document.getElementById('delete-btn').addEventListener('click', () => {
+            if (selectedElement) {
+                selectedElement.remove();
+                selectedElement = null;
+            }
+        });
+    </script>
+</body>
+</html>
