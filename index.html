@@ -1,391 +1,257 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frontier Foundry Shop Layout</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        :root {
-            --scale: 20px; /* 1 foot = 20 pixels */
-        }
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            margin: 0;
-            display: flex;
-            height: 100vh;
-            background-color: #1e1e1e;
-            color: #fff;
-            overflow: hidden;
-        }
-        #sidebar {
-            width: 300px;
-            background-color: #2d2d2d;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.5);
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            overflow-y: auto;
-        }
-        #sidebar h2 { margin: 0; font-size: 1.2rem; border-bottom: 1px solid #444; padding-bottom: 5px; }
-        #sidebar h3 { margin: 10px 0 0 0; font-size: 0.85rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px;}
-        
-        .input-group { display: flex; gap: 5px; margin-bottom: 5px; }
-        .input-group input, .input-group select { width: 100%; padding: 6px; background: #1e1e1e; border: 1px solid #555; color: white; font-size: 0.9rem; box-sizing: border-box; }
-        
-        button {
-            width: 100%;
-            padding: 8px;
-            background-color: #4a90e2;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-        button:hover { background-color: #357abd; }
-        .btn-secondary { background-color: #555; margin-top: 5px;}
-        .btn-secondary:hover { background-color: #666; }
-        .btn-success { background-color: #27ae60; margin-top: 15px;}
-        .btn-success:hover { background-color: #219653; }
+<div id="public-view" style="display: none; background-color: #0f172a; color: #ffffff; padding: 50px 40px; border-radius: 8px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
 
-        .item-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 5px;
-        }
+  <div style="color: #facc15; font-size: 0.85em; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px;">
+    Labs Series
+  </div>
 
-        .draggable-item {
-            color: white;
-            padding: 6px;
-            text-align: center;
-            cursor: grab;
-            user-select: none;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            border: 1px solid rgba(255,255,255,0.2);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        /* Custom Item Builder */
-        details summary { cursor: pointer; font-weight: bold; color: #9b59b6; outline: none; transition: color 0.2s; }
-        details summary:hover { color: #8e44ad; }
-        .custom-panel { background-color: #353535; padding: 12px; border-radius: 4px; margin-top: 8px; border: 1px solid #555; }
+  <h1 style="font-size: 2em; font-weight: 800; line-height: 1.3; margin: 0 auto 15px auto; max-width: 700px; text-transform: uppercase; color: #ffffff;">
+    Build the foundation for a thriving transformational business
+  </h1>
 
-        #edit-panel {
-            background-color: #3d3d3d;
-            padding: 10px;
-            border-radius: 4px;
-            display: none;
-            border: 1px solid #2ecc71;
-        }
+  <p style="font-style: italic; font-size: 1.1em; color: #cbd5e1; margin-bottom: 25px;">
+    Congrats on taking your first step into the Lab Series.
+  </p>
 
-        #canvas-area {
-            flex-grow: 1;
-            position: relative;
-            background-color: #1a1a1a;
-            overflow: auto;
-            padding: 30px;
-        }
+  <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.2); width: 70%; margin: 0 auto 30px auto;" />
 
-        .floor-container { margin-bottom: 50px; }
-        .floor-container h2 { margin-top: 0; margin-bottom: 10px; font-size: 1.4rem; }
+  <div style="max-width: 750px; margin: 0 auto; text-align: left; line-height: 1.6; font-size: 0.95em; color: #f8fafc;">
+    <p style="margin-bottom: 20px;">
+      Labs is a hands-on training program for aspiring and early-stage entrepreneurs ready to launch. Step by step, you'll build the essential building blocks of a successful venture—refining your idea, researching your market, testing your MVP, and crafting a complete pitch deck—supported by practical tools, coaching, and real-world feedback.
+    </p>
+  </div>
 
-        .grid-floor {
-            position: relative;
-            background-color: #252526;
-            background-image: 
-                linear-gradient(#333 1px, transparent 1px),
-                linear-gradient(90deg, #333 1px, transparent 1px);
-            background-size: var(--scale) var(--scale);
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            transform-origin: top left;
-            overflow: hidden;
-        }
+</div>
 
-        #shop-floor { border: 4px solid #4a90e2; }
-        #loft-floor { border: 4px solid #f39c12; }
+<div id="enrolled-view" style="display: none;">
+  
+  <style>
+    .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+    .course-container { flex: 1 1 55%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-width: 300px; border: 1px solid #ddd; border-radius: 12px; padding: 20px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .right-column { flex: 1 1 30%; min-width: 250px; display: flex; flex-direction: column; gap: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    
+    .announcements-container { border: 1px solid #ddd; border-radius: 12px; padding: 20px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .announcement-title { font-weight: bold; color: #2c3e50; font-size: 1.05em; margin-bottom: 12px; display: block; border-bottom: 2px solid #e9ecef; padding-bottom: 8px; }
+    .announcement-card { background: #fffde7; border-left: 4px solid #fbc02d; padding: 15px; border-radius: 4px; font-size: 0.9em; line-height: 1.5; color: #333; margin-bottom: 10px; }
+    
+    /* Reusable Sidebar Box Style */
+    .sidebar-container { border: 1px solid #ddd; border-radius: 12px; padding: 20px; background: #fdfdfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .sidebar-title { font-weight: bold; color: #2c3e50; font-size: 1.05em; margin-bottom: 12px; display: block; border-bottom: 2px solid #e9ecef; padding-bottom: 8px; }
+    .sidebar-link { display: flex; align-items: center; gap: 8px; color: #0056b3; text-decoration: none; font-weight: 500; font-size: 0.9em; margin-bottom: 10px; background: #fff; padding: 12px; border: 1px solid #eee; border-radius: 6px; transition: all 0.2s ease; }
+    .sidebar-link:hover { background: #f0f8ff; border-color: #bce0fd; transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+    
+    .progress-section { margin-bottom: 20px; }
+    .timeline-title { font-weight: bold; color: #2c3e50; font-size: 1.05em; margin-bottom: 8px; display: block; }
+    .progress-bar-bg { background: #e9ecef; height: 16px; border-radius: 4px; border: 1px solid #ced4da; overflow: hidden; position: relative; }
+    .progress-bar-fill { background-color: #3498db; background-image: linear-gradient(to right, transparent 95%, rgba(255,255,255,0.8) 95%); background-size: 7.142% 100%; height: 100%; width: 0%; transition: width 0.5s ease; }
+    .progress-text { font-size: 0.85em; color: #666; margin-top: 6px; display: block; font-weight: 500; }
+    
+    .active-session { border: 2px solid #3498db; background: #ebf5fb; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+    .active-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #bce0fd; padding-bottom: 10px; }
+    .active-title { font-weight: bold; font-size: 1.1em; color: #004a99; }
+    .status-badge { font-size: 0.7em; padding: 3px 8px; border-radius: 12px; text-transform: uppercase; font-weight: bold; background: #3498db; color: white; }
+    .session-details { font-size: 0.9em; color: #333; }
+    .detail-item { margin-bottom: 10px; line-height: 1.4; }
+    .detail-item strong { color: #2c3e50; }
+    
+    .toggle-btn { background: #f8f9fa; border: 1px solid #ddd; color: #555; padding: 10px; width: 100%; text-align: left; font-weight: 600; font-size: 0.9em; cursor: pointer; border-radius: 6px; transition: background 0.2s; }
+    .toggle-btn:hover { background: #e9ecef; }
+    .future-container { display: none; flex-direction: column; gap: 5px; margin-top: 10px; padding: 0 5px; }
+    .future-session { padding: 8px 12px; background: #fafafa; border-left: 3px solid #ddd; border-radius: 4px; display: flex; justify-content: space-between; font-size: 0.85em; color: #777; }
+  </style>
 
-        .placed-item {
-            position: absolute;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: white;
-            font-size: 0.7rem;
-            font-weight: bold;
-            cursor: grab;
-            user-select: none;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.4);
-            box-sizing: border-box;
-            z-index: 40;
-            line-height: 1.1;
-            overflow: hidden;
-        }
-        .placed-item.selected { border-color: #2ecc71; border-width: 2px; z-index: 100; box-shadow: 0 0 10px #2ecc71; }
-        
-        .style-stairs { background: repeating-linear-gradient(45deg, #555, #555 5px, #444 5px, #444 10px); }
-    </style>
-</head>
-<body>
-
-    <div id="sidebar">
-        <h2>Frontier Foundry Setup</h2>
-        
-        <h3>Floor Dimensions (ft)</h3>
-        <div class="input-group">
-            <input type="number" id="shop-w" value="40" title="Main Floor Width">
-            <input type="number" id="shop-h" value="30" title="Main Floor Length">
-        </div>
-        
-        <h3>Loft Dimensions (ft)</h3>
-        <div class="input-group">
-            <input type="number" id="loft-w" value="15" title="Loft Width">
-            <input type="number" id="loft-h" value="10" title="Loft Length">
-        </div>
-        <button onclick="updateShop()">Apply Dimensions</button>
-
-        <details>
-            <summary>+ Create Custom Space Claim</summary>
-            <div class="custom-panel">
-                <input type="text" id="custom-name" placeholder="Item Name (e.g. Compressor)" style="width: 100%; padding: 6px; box-sizing: border-box; margin-bottom: 6px; background: #1e1e1e; border: 1px solid #555; color: white;">
-                <div class="input-group">
-                    <input type="number" id="custom-w" placeholder="W (ft)" step="0.5">
-                    <input type="number" id="custom-h" placeholder="L (ft)" step="0.5">
-                </div>
-                <div class="input-group" style="align-items: center;">
-                    <input type="color" id="custom-color" value="#9b59b6" style="padding: 0; width: 40px; height: 32px; border: none; cursor: pointer;">
-                    <select id="custom-layer">
-                        <option value="shop-floor">1st Floor</option>
-                        <option value="loft-floor">Loft (2nd Floor)</option>
-                    </select>
-                </div>
-                <button onclick="addCustomItem()" style="background-color: #9b59b6;">Add Custom Item</button>
-            </div>
-        </details>
-
-        <div id="edit-panel">
-            <h3 style="margin-top:0; color: #2ecc71;">Edit Selected Item</h3>
-            <div class="input-group">
-                <input type="number" id="edit-w" title="Custom Width (ft)" step="0.5">
-                <input type="number" id="edit-h" title="Custom Length (ft)" step="0.5">
-            </div>
-            <button onclick="applyCustomSize()" style="background-color: #2ecc71; padding: 5px;">Update Size</button>
-            <button class="btn-secondary" id="rotate-btn" style="padding: 5px;">Rotate 90°</button>
-            <button class="btn-secondary" id="delete-btn" style="background-color: #c0392b; padding: 5px;">Delete</button>
-        </div>
-
-        <h3>Structure & Utilities</h3>
-        <div class="item-grid">
-            <div class="draggable-item style-stairs" data-w="3" data-h="10" data-bg="#555">Staircase</div>
-            <div class="draggable-item" data-w="6" data-h="8" data-bg="#2980b9">Bathroom</div>
-            <div class="draggable-item" data-w="3" data-h="5" data-bg="#8e44ad">Closet</div>
-            <div class="draggable-item" data-w="2" data-h="1" data-bg="#e74c3c">Elec Panel</div>
-            <div class="draggable-item" data-w="3" data-h="1" data-bg="#f1c40f">Man Door</div>
-            <div class="draggable-item" data-w="10" data-h="1" data-bg="#e67e22">Garage Door</div>
-        </div>
-
-        <h3>Equipment</h3>
-        <div class="item-grid">
-            <div class="draggable-item" data-w="3" data-h="3" data-bg="#d35400">Artisan</div>
-            <div class="draggable-item" data-w="2" data-h="2" data-bg="#16a085">FLSUN S1</div>
-            <div class="draggable-item" data-w="3" data-h="2" data-bg="#27ae60">Makera Z1</div>
-            <div class="draggable-item" data-w="8" data-h="3" data-bg="#34495e">Workbench</div>
-            <div class="draggable-item" data-w="4" data-h="2" data-bg="#7f8c8d">Rack</div>
-        </div>
-
-        <button class="btn-success" onclick="exportLayout()">Export Layout (PNG)</button>
+  <div class="dashboard-wrapper">
+    <div class="course-container">
+      <div class="progress-section">
+        <span class="timeline-title">14-Week Timeline Schedule</span>
+        <div class="progress-bar-bg"><div id="progressBar" class="progress-bar-fill"></div></div>
+        <span id="progressText" class="progress-text">Calculating schedule...</span>
+      </div>
+      <div id="activeSessionContainer"></div>
+      <button id="toggleBtn" class="toggle-btn">▼ Show Upcoming Schedule</button>
+      <div id="futureContainer" class="future-container"></div>
     </div>
 
-    <div id="canvas-area">
-        <div id="export-container" style="background-color: #1a1a1a; padding: 10px;">
-            <div class="floor-container">
-                <h2 style="color: #4a90e2;">Main Shop Floor (1st Floor)</h2>
-                <div id="shop-floor" class="grid-floor"></div>
-            </div>
-            
-            <div class="floor-container">
-                <h2 style="color: #f39c12;">Loft Area (2nd Floor)</h2>
-                <div id="loft-floor" class="grid-floor"></div>
-            </div>
+    <div class="right-column">
+      
+      <div class="sidebar-container">
+        <span class="sidebar-title">💻 Live Class</span>
+        <a href="https://zoom.us/j/your-permanent-room-link" target="_blank" class="sidebar-link" style="background: #e3f2fd; border-color: #90caf9; font-weight: bold;">
+          📹 Join Tuesday Zoom Room
+        </a>
+      </div>
+
+      <div class="announcements-container">
+        <span class="announcement-title">📢 Course Announcements</span>
+        <div class="announcement-card">
+          <strong>Welcome to our new dashboard!</strong><br>
+          Please make sure to complete all worksheets before the next workshop, and if you encounter any issues, please submit a bug report below!
         </div>
+      </div>
+      
+      <div class="sidebar-container">
+        <span class="sidebar-title">🛠️ Help & Feedback</span>
+        <a href="https://forms.gle/ZuRxyJckzZxQEj9BA" target="_blank" class="sidebar-link">📝 Content Feedback Form</a>
+        <a href="https://forms.gle/4FNX8UbDZTCnM14H7" target="_blank" class="sidebar-link">🐛 Report a Bug</a>
+      </div>
     </div>
+  </div>
 
-    <script>
-        const SCALE = 20; // 1 foot = 20px
-        const shopFloor = document.getElementById('shop-floor');
-        const loftFloor = document.getElementById('loft-floor');
-        const editPanel = document.getElementById('edit-panel');
-        
-        let selectedElement = null;
-        let isDragging = false;
-        let startX, startY, initialLeft, initialTop;
-        let activeFloor = null;
+</div>
 
-        function updateShop() {
-            const sw = document.getElementById('shop-w').value;
-            const sh = document.getElementById('shop-h').value;
-            shopFloor.style.width = (sw * SCALE) + 'px';
-            shopFloor.style.height = (sh * SCALE) + 'px';
+<script>
+(function() {
+  // Check for enrolled status first
+  setTimeout(function() {
+    const pageText = document.body.innerText || "";
+    // If it finds "Continue training" or "See progress", it shows the dashboard
+    const isEnrolled = pageText.includes("Continue training") || pageText.includes("See progress");
 
-            const lw = document.getElementById('loft-w').value;
-            const lh = document.getElementById('loft-h').value;
-            loftFloor.style.width = (lw * SCALE) + 'px';
-            loftFloor.style.height = (lh * SCALE) + 'px';
-        }
+    if (isEnrolled) {
+      document.getElementById('enrolled-view').style.display = 'block';
+      document.getElementById('public-view').style.display = 'none';
+      runDashboardLogic(); 
+    } else {
+      document.getElementById('public-view').style.display = 'block';
+      document.getElementById('enrolled-view').style.display = 'none';
+    }
+  }, 500);
 
-        updateShop();
+  function runDashboardLogic() {
+    // ==========================================
+    // THE DATA DICTIONARY: 14-Week Module Data
+    // ==========================================
+    const courseData = [
+      { 
+        description: "Module 1: Orientation and Introduction to the Transformational Entrepreneurship Lab Series.", 
+        notes: "N/A - First Session!" 
+      },
+      { 
+        description: "Module 2 - Envisioning, Ideation, & Creating Vision: Introduction to brainstorming and creating a strong vision for your business.", 
+        notes: "Review notes and takeaways from last week's orientation." 
+      },
+      { 
+        description: "Module 3 - Defining Your Target Market & Customers: Learn how to identify and define your ideal customer base.", 
+        notes: "Key takeaways from last week's ideation and vision exercises." 
+      },
+      { 
+        description: "Module 4 - Developing Strong Value Propositions: Focus on crafting compelling value propositions for your target audience.", 
+        notes: "Ensure your target market definitions from last week are clear." 
+      },
+      { 
+        description: "Module 5 - Minimal Viable Product (MVP): Steps and strategies for developing and testing your MVP.", 
+        notes: "Review feedback on the value propositions you drafted last week." 
+      },
+      { 
+        description: "Module 6 - Essential Marketing & Advertising Strategy: Overview of basic marketing channels and advertising tactics.", 
+        notes: "Think about how your MVP ties into the marketing concepts discussed." 
+      },
+      { 
+        description: "Module 7 - Sales and Customer Service Foundations: Building the foundations for effective sales and excellent customer service.", 
+        notes: "Review last week's marketing strategies and how they transition into sales." 
+      },
+      { 
+        description: "Module 8 - Key Financial Concepts For Running Your Business: Introduction to the basic financial metrics and concepts you need to know.", 
+        notes: "Keep customer service and sales foundations in mind as we pivot to financials." 
+      },
+      { 
+        description: "Module 9 - Revenue Models, Budgeting, and Funding: Deep dive into pricing models, creating a budget, and exploring funding options.", 
+        notes: "Review the basic financial terms and concepts from last week." 
+      },
+      { 
+        description: "Module 10 - Developing a 3-Year Business Plan: Structuring and developing a comprehensive 3-year roadmap.", 
+        notes: "Ensure your revenue models and budgets are ready to plug into the business plan." 
+      },
+      { 
+        description: "Module 11 - Leadership and Culture: Exploring the importance of leadership styles and building a strong company culture.", 
+        notes: "Reflect on the long-term vision established in last week's 3-year business plan." 
+      },
+      { 
+        description: "Module 12 - Developing an Effective Pitch Deck 1: Part 1 of creating a compelling pitch deck for stakeholders and investors.", 
+        notes: "Review leadership and culture concepts to incorporate into your team slide." 
+      },
+      { 
+        description: "Module 13 - Developing an Effective Pitch Deck 2: Part 2 of pitching—refining, formatting, and practicing your presentation.", 
+        notes: "Implement feedback from the initial pitch deck drafts created last week." 
+      },
+      { 
+        description: "Module 14 - Magnifi Shark Tank: Final presentations! Pitch your business in the Magnifi Shark Tank.", 
+        notes: "Apply the final polish to your pitch decks based on last week's practice session." 
+      }
+    ];
 
-        // Helper to spawn items
-        function spawnItem(name, w, h, bg, floorId, isStairs = false) {
-            const newBlock = document.createElement('div');
-            newBlock.className = 'placed-item';
-            if (isStairs) newBlock.classList.add('style-stairs');
-            
-            newBlock.innerHTML = name;
-            newBlock.style.width = (w * SCALE) + 'px';
-            newBlock.style.height = (h * SCALE) + 'px';
-            if (!isStairs) newBlock.style.backgroundColor = bg;
-            
-            newBlock.style.left = (2 * SCALE) + 'px'; 
-            newBlock.style.top = (2 * SCALE) + 'px';
+    const startDate = new Date("2026-02-17T18:30:00-06:00"); 
+    const totalWeeks = 14;
+    const now = new Date(); 
+    
+    const activeContainer = document.getElementById('activeSessionContainer');
+    const futureContainer = document.getElementById('futureContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
 
-            document.getElementById(floorId).appendChild(newBlock);
-            selectElement(newBlock);
-        }
+    let activeFound = false;
 
-        // Sidebar Standard Items
-        document.querySelectorAll('.draggable-item').forEach(item => {
-            item.style.backgroundColor = item.getAttribute('data-bg'); 
-            
-            item.addEventListener('click', (e) => {
-                const w = parseFloat(item.getAttribute('data-w'));
-                const h = parseFloat(item.getAttribute('data-h'));
-                const bg = item.getAttribute('data-bg');
-                const isStairs = item.classList.contains('style-stairs');
-                // Standard items default to the main floor
-                spawnItem(item.innerText, w, h, bg, 'shop-floor', isStairs);
-            });
-        });
+    for (let i = 0; i < totalWeeks; i++) {
+      const sessionDate = new Date(startDate);
+      sessionDate.setDate(startDate.getDate() + (i * 7)); 
+      
+      const nextSessionDate = new Date(sessionDate);
+      nextSessionDate.setDate(nextSessionDate.getDate() + 7);
+      
+      const isPast = now >= nextSessionDate;
+      const isActive = now >= sessionDate && now < nextSessionDate;
+      const isFuture = now < sessionDate;
 
-        // Custom Item Logic
-        function addCustomItem() {
-            const name = document.getElementById('custom-name').value || 'Custom';
-            const w = parseFloat(document.getElementById('custom-w').value) || 2;
-            const h = parseFloat(document.getElementById('custom-h').value) || 2;
-            const color = document.getElementById('custom-color').value;
-            const layer = document.getElementById('custom-layer').value;
+      const dateLabel = sessionDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const weekData = courseData[i] || { description: "TBD", notes: "TBD" };
 
-            spawnItem(name, w, h, color, layer);
-            
-            // Reset fields
-            document.getElementById('custom-name').value = '';
-            document.getElementById('custom-w').value = '';
-            document.getElementById('custom-h').value = '';
-        }
+      if (isActive) {
+        activeFound = true;
+        activeContainer.innerHTML = `
+          <div class="active-session">
+            <div class="active-header">
+              <div class="active-title">Session ${i + 1}</div>
+              <span class="status-badge">This Week</span>
+            </div>
+            <div class="session-details">
+              <div class="detail-item"><strong>📝 Description:</strong> <br>${weekData.description}</div>
+              <div class="detail-item"><strong>⏪ Notes from Session ${i === 0 ? 'Orientation' : i}:</strong> <br>${weekData.notes}</div>
+            </div>
+          </div>
+        `;
+      } else if (isFuture) {
+        futureContainer.innerHTML += `
+          <div class="future-session">
+            <strong>Session ${i + 1}</strong>
+            <span>${dateLabel} @ 6:30 PM</span>
+          </div>
+        `;
+      }
+    }
 
-        // Global Dragging Logic
-        document.addEventListener('mousedown', (e) => {
-            if (e.target.classList.contains('placed-item')) {
-                selectElement(e.target);
-                isDragging = true;
-                activeFloor = e.target.parentElement;
-                startX = e.clientX;
-                startY = e.clientY;
-                initialLeft = parseInt(e.target.style.left) || 0;
-                initialTop = parseInt(e.target.style.top) || 0;
-                e.target.style.cursor = 'grabbing';
-            } else if (e.target.classList.contains('grid-floor') || e.target.closest('#canvas-area') && !e.target.closest('#sidebar')) {
-                deselectAll();
-            }
-        });
+    if (!activeFound) {
+      if (now < startDate) {
+        activeContainer.innerHTML = `<div class="active-session" style="text-align:center;"><strong>Course starts on ${startDate.toLocaleDateString('en-US')}!</strong></div>`;
+      } else {
+        activeContainer.innerHTML = `<div class="active-session" style="text-align:center;"><strong>Course Complete! 🎉</strong></div>`;
+      }
+    }
 
-        document.addEventListener('mousemove', (e) => {
-            if (!isDragging || !selectedElement || !activeFloor) return;
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
-            
-            const snap = SCALE / 2;
-            const newLeft = Math.round((initialLeft + dx) / snap) * snap;
-            const newTop = Math.round((initialTop + dy) / snap) * snap;
+    const timePassed = now - startDate;
+    const weeksPassed = Math.max(0, Math.min(totalWeeks, timePassed / (1000 * 60 * 60 * 24 * 7)));
+    const percent = Math.round((weeksPassed / totalWeeks) * 100);
+    
+    progressBar.style.width = percent + "%";
+    progressText.innerText = `Currently on Week ${Math.floor(weeksPassed) + 1} of 14`;
 
-            selectedElement.style.left = `${newLeft}px`;
-            selectedElement.style.top = `${newTop}px`;
-        });
-
-        document.addEventListener('mouseup', () => {
-            if (isDragging && selectedElement) selectedElement.style.cursor = 'grab';
-            isDragging = false;
-            activeFloor = null;
-        });
-
-        // Editing Controls
-        function selectElement(element) {
-            deselectAll();
-            selectedElement = element;
-            selectedElement.classList.add('selected');
-            
-            editPanel.style.display = 'block';
-            document.getElementById('edit-w').value = parseFloat(element.style.width) / SCALE;
-            document.getElementById('edit-h').value = parseFloat(element.style.height) / SCALE;
-        }
-
-        function deselectAll() {
-            document.querySelectorAll('.placed-item').forEach(el => el.classList.remove('selected'));
-            selectedElement = null;
-            editPanel.style.display = 'none';
-        }
-
-        function applyCustomSize() {
-            if (selectedElement) {
-                const newW = document.getElementById('edit-w').value;
-                const newH = document.getElementById('edit-h').value;
-                selectedElement.style.width = (newW * SCALE) + 'px';
-                selectedElement.style.height = (newH * SCALE) + 'px';
-            }
-        }
-
-        document.getElementById('rotate-btn').addEventListener('click', () => {
-            if (selectedElement) {
-                const currentWidth = parseFloat(selectedElement.style.width) / SCALE;
-                const currentHeight = parseFloat(selectedElement.style.height) / SCALE;
-                selectedElement.style.width = (currentHeight * SCALE) + 'px';
-                selectedElement.style.height = (currentWidth * SCALE) + 'px';
-                document.getElementById('edit-w').value = currentHeight;
-                document.getElementById('edit-h').value = currentWidth;
-            }
-        });
-
-        document.getElementById('delete-btn').addEventListener('click', () => {
-            if (selectedElement) {
-                selectedElement.remove();
-                deselectAll();
-            }
-        });
-
-        // Export Logic
-        function exportLayout() {
-            const tempSelected = selectedElement;
-            if (tempSelected) tempSelected.classList.remove('selected');
-
-            // Capture the container holding both floors
-            html2canvas(document.getElementById('export-container'), {
-                backgroundColor: '#1a1a1a',
-                scale: 2 // Higher resolution export
-            }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = 'frontier-foundry-multilevel-layout.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                if (tempSelected) tempSelected.classList.add('selected');
-            });
-        }
-    </script>
-</body>
-</html>
+    document.getElementById('toggleBtn').addEventListener('click', function() {
+      if (futureContainer.style.display === 'flex') {
+        futureContainer.style.display = 'none';
+        this.innerText = '▼ Show Upcoming Schedule';
+      } else {
+        futureContainer.style.display = 'flex';
+        this.innerText = '▲ Hide Upcoming Schedule';
+      }
+    });
+  }
+})();
+</script>
